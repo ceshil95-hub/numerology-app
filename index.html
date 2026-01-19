@@ -1,0 +1,706 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#111827" />
+  <title>수비학 앱</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <style>
+    :root { color-scheme: light dark; }
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", sans-serif; background:#0b1220; color:#e5e7eb; }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 16px; }
+    .card { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); border-radius: 18px; padding: 14px; }
+    h1 { font-size: 18px; margin: 0 0 10px; }
+    h2 { font-size: 15px; margin: 16px 0 8px; }
+    label { font-size: 13px; opacity: .9; display:block; margin: 10px 0 6px; }
+    input {
+      width: 100%; box-sizing: border-box; border-radius: 12px; border: 1px solid rgba(255,255,255,.16);
+      padding: 12px; background: rgba(0,0,0,.25); color: inherit; outline: none;
+    }
+    .hint { font-size: 12px; opacity: .75; margin-top: 6px; line-height: 1.4; }
+    .row { display:flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+    button {
+      border: 0; border-radius: 12px; padding: 12px 14px; background:#2563eb; color:white; font-weight: 900;
+      flex: 1; min-width: 140px;
+    }
+    button.secondary { background: rgba(255,255,255,.14); }
+    .grid2 { display:grid; gap: 10px; grid-template-columns: 1fr 1fr; }
+    @media (max-width: 560px){ .grid2{ grid-template-columns: 1fr; } }
+
+    .dtline { display:flex; gap:6px; align-items:center; flex-wrap: nowrap; }
+    .dtline span { opacity: .75; }
+    .dtline input { text-align:center; padding: 12px 10px; }
+    .wY { flex: 2.2; min-width: 96px; }
+    .wS { flex: 1; min-width: 56px; }
+
+    .results { margin-top: 14px; display:grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    @media (max-width: 720px){ .results{ grid-template-columns: 1fr; } }
+
+    .box { padding: 12px; border-radius: 16px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.10); }
+    .mono { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; }
+    .k { font-size: 12px; opacity: .8; }
+    .v { font-size: 22px; font-weight: 950; margin-top: 4px; cursor:pointer; }
+    .detail {
+      display:none;
+      margin-top: 8px;
+      padding: 10px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.20);
+      font-size: 13px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      word-break: break-word;
+      opacity: .95;
+    }
+    .box.open .detail { display:block; }
+    .miniBtn{
+      border:0; border-radius:10px; padding:8px 10px;
+      background: rgba(255,255,255,.14); color: inherit; font-weight: 900;
+      margin-left: 6px;
+    }
+    .rowLine{ display:flex; justify-content: space-between; gap:10px; flex-wrap: wrap; align-items:flex-start; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <h1>수비학 앱</h1>
+
+      <h2>1. 성함</h2>
+      <div class="grid2">
+        <div>
+          <label for="lastName">성</label>
+          <input id="lastName" placeholder="예) 홍" autocomplete="family-name" />
+        </div>
+        <div>
+          <label for="firstName">이름</label>
+          <input id="firstName" placeholder="예) 길동" autocomplete="given-name" />
+        </div>
+      </div>
+
+      <h2>2. 생년월일시분</h2>
+      <label>양력 입력</label>
+      <div class="dtline">
+        <input id="yyyy" class="wY" inputmode="numeric" maxlength="4" placeholder="yyyy" />
+        <span>/</span>
+        <input id="MM" class="wS" inputmode="numeric" maxlength="2" placeholder="mm" />
+        <span>/</span>
+        <input id="dd" class="wS" inputmode="numeric" maxlength="2" placeholder="dd" />
+        <span>/</span>
+        <input id="hh" class="wS" inputmode="numeric" maxlength="2" placeholder="hh" />
+        <span>/</span>
+        <input id="min" class="wS" inputmode="numeric" maxlength="2" placeholder="mm" />
+      </div>
+      <div class="hint">
+        형식: <span class="mono">yyyy / mm / dd / hh / mm</span><br>
+        * 시간/분은 입력만 받고 계산(1~6)에는 미포함<br>
+        * 결과는 “일의 수(한 자리)”로, 계산 과정 중 11/22/33이 나오면 <span class="mono">2 (11)</span>처럼 표시<br>
+        * 숫자를 클릭하면 수식(계산 과정)이 열리고/닫힙니다.
+      </div>
+
+      <div class="row">
+        <button id="calcBtn">계산하기</button>
+        <button id="saveBtn" class="secondary">저장</button>
+        <button id="resetBtn" class="secondary">초기화</button>
+      </div>
+
+      <div class="results">
+        <div class="box" id="box-life">
+          <div class="k">1) 인생여정수</div>
+          <div class="v" id="lifeNum">-</div>
+          <div class="detail" id="lifeDetail"></div>
+        </div>
+        <div class="box" id="box-personality">
+          <div class="k">2) 성격수 (자음)</div>
+          <div class="v" id="personalityNum">-</div>
+          <div class="detail" id="personalityDetail"></div>
+        </div>
+        <div class="box" id="box-soul">
+          <div class="k">3) 혼의수 (모음)</div>
+          <div class="v" id="soulNum">-</div>
+          <div class="detail" id="soulDetail"></div>
+        </div>
+        <div class="box" id="box-destiny">
+          <div class="k">4) 운명수 (혼의수 + 성격수)</div>
+          <div class="v" id="destinyNum">-</div>
+          <div class="detail" id="destinyDetail"></div>
+        </div>
+        <div class="box" id="box-complete">
+          <div class="k">5) 완성수 (인생여정수 + 운명수)</div>
+          <div class="v" id="completeNum">-</div>
+          <div class="detail" id="completeDetail"></div>
+        </div>
+        <div class="box" id="box-year">
+          <div class="k">6) 올해의수 (현재년도 + 출생월 + 출생일)</div>
+          <div class="v" id="yearNum">-</div>
+          <div class="detail" id="yearDetail"></div>
+        </div>
+      </div>
+
+      <div class="box" style="margin-top:12px">
+        <div class="k">저장된 데이터</div>
+        <div class="row" style="margin-top:10px">
+          <input id="searchInput" placeholder="검색: 이름 또는 연도 (예: 홍길동, 1967)" style="flex:2; min-width:220px" />
+          <button id="exportBtn" class="secondary" style="flex:1">내보내기(JSON)</button>
+          <button id="importBtn" class="secondary" style="flex:1">가져오기(JSON)</button>
+          <input id="importFile" type="file" accept="application/json" style="display:none" />
+        </div>
+        <div class="detail" id="savedList" style="display:block"></div>
+        <div class="hint">저장 위치: 이 PC(브라우저) 로컬 저장소(LocalStorage)</div>
+      </div>
+    </div>
+  </div>
+
+<script>
+  const $ = (id) => document.getElementById(id);
+
+  // ---------- 공통 유틸 ----------
+  function escapeHtml(str){
+    return String(str ?? "")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  function onlyDigits(s){ return (s ?? "").toString().replaceAll(/[^0-9]/g, ""); }
+  function pad2(s){ s = onlyDigits(s); return s.padStart(2, "0").slice(0,2); }
+  function pad4(s){ s = onlyDigits(s); return s.padStart(4, "0").slice(0,4); }
+
+  function normalizeDateInputs(){
+    const y = pad4($("yyyy").value);
+    const m = pad2($("MM").value);
+    const d = pad2($("dd").value);
+    const hh = pad2($("hh").value);
+    const mm = pad2($("min").value);
+    $("yyyy").value = y; $("MM").value = m; $("dd").value = d; $("hh").value = hh; $("min").value = mm;
+    return { y, m, d, hh, mm };
+  }
+
+  function validateYMDHM(y,m,d,hh,mm){
+    if (y.length !== 4) return "연도(yyyy) 4자리를 입력해줘.";
+    if (m.length !== 2) return "월(mm) 2자리를 입력해줘.";
+    if (d.length !== 2) return "일(dd) 2자리를 입력해줘.";
+    if (hh.length !== 2) return "시(hh) 2자리를 입력해줘.";
+    if (mm.length !== 2) return "분(mm) 2자리를 입력해줘.";
+
+    const yi = Number(y), mi = Number(m), di = Number(d), hi = Number(hh), mni = Number(mm);
+    if (!(mi >= 1 && mi <= 12)) return "월(mm)은 01~12 범위야.";
+    if (!(hi >= 0 && hi <= 23)) return "시(hh)는 00~23 범위야.";
+    if (!(mni >= 0 && mni <= 59)) return "분(mm)은 00~59 범위야.";
+
+    const dt = new Date(yi, mi - 1, di);
+    if (dt.getFullYear() !== yi || dt.getMonth() !== (mi - 1) || dt.getDate() !== di) {
+      return "날짜가 유효하지 않아. (월/일 조합 확인)";
+    }
+    return null;
+  }
+
+  function sumDigitsStr(str){
+    return String(str).split("").reduce((acc, ch) => acc + Number(ch), 0);
+  }
+
+  // “일의 수”로 줄이되, 과정 중 11/22/33이 나오면 괄호로 표시
+  function reduceToSingleDigitKeepMasterTag(n){
+    n = Math.abs(Number(n || 0));
+    const steps = [];
+    let master = null;
+
+    while (n >= 10) {
+      if (n === 11 || n === 22 || n === 33) master = n;
+      const parts = String(n).split("").map(Number);
+      const s = parts.reduce((a,b)=>a+b,0);
+      steps.push(`${parts.join(" + ")} = ${s}`);
+      if (s === 11 || s === 22 || s === 33) master = s;
+      n = s;
+    }
+    return { value: n, master, steps };
+  }
+
+  function fmtValue(v, master){
+    if (v === null || v === undefined) return "-";
+    return master ? `${v} (${master})` : String(v);
+  }
+
+  function setBox(numId, detailId, boxId, obj){
+    $(numId).textContent = fmtValue(obj.value, obj.master);
+    $(detailId).textContent = (obj.steps || []).join("\n");
+
+    // 계산할 때마다 닫힌 상태로
+    const box = $(boxId);
+    box.classList.remove("open");
+  }
+
+  // ---------- 1) 인생여정수 ----------
+  function calcLifeJourney(yyyy, MM, dd){
+    const digits = `${yyyy}${MM}${dd}`; // y+y+y+y+m+m+d+d
+    const expanded = digits.split("").join(" + ");
+    const firstSum = sumDigitsStr(digits);
+    const red = reduceToSingleDigitKeepMasterTag(firstSum);
+    return { value: red.value, master: red.master, steps: [`${expanded} = ${firstSum}`, ...red.steps] };
+  }
+
+  // ---------- 2/3) 이름 자음/모음 ----------
+  // 자음 값: ㄱㄴㄷㄹㅁㅂㅅㅇㅈ => 1~9, ㅊㅋㅌㅍㅎ => 1~5 반복
+  const K_CONS_VALUE = new Map([
+    ["ㄱ",1],["ㄴ",2],["ㄷ",3],["ㄹ",4],["ㅁ",5],["ㅂ",6],["ㅅ",7],["ㅇ",8],["ㅈ",9],
+    ["ㅊ",1],["ㅋ",2],["ㅌ",3],["ㅍ",4],["ㅎ",5],
+  ]);
+
+  // 모음 값: ㅏㅑㅓㅕㅗㅛㅜㅠㅡㅣ (ㅣ=1)
+  const K_VOWEL_VALUE = new Map([
+    ["ㅏ",1],["ㅑ",2],["ㅓ",3],["ㅕ",4],["ㅗ",5],["ㅛ",6],["ㅜ",7],["ㅠ",8],["ㅡ",9],
+    ["ㅣ",1],
+  ]);
+
+  // 겹/복합 자음 확장
+  const K_CONS_EXPAND = new Map([
+    ["ㄲ", ["ㄱ","ㄱ"]],
+    ["ㄸ", ["ㄷ","ㄷ"]],
+    ["ㅃ", ["ㅂ","ㅂ"]],
+    ["ㅆ", ["ㅅ","ㅅ"]],
+    ["ㅉ", ["ㅈ","ㅈ"]],
+    ["ㄳ", ["ㄱ","ㅅ"]],
+    ["ㄵ", ["ㄴ","ㅈ"]],
+    ["ㄶ", ["ㄴ","ㅎ"]],
+    ["ㄺ", ["ㄹ","ㄱ"]],
+    ["ㄻ", ["ㄹ","ㅁ"]],
+    ["ㄼ", ["ㄹ","ㅂ"]],
+    ["ㄽ", ["ㄹ","ㅅ"]],
+    ["ㄾ", ["ㄹ","ㅌ"]],
+    ["ㄿ", ["ㄹ","ㅍ"]],
+    ["ㅀ", ["ㄹ","ㅎ"]],
+    ["ㅄ", ["ㅂ","ㅅ"]],
+  ]);
+
+  // 한글 분해
+  const CHOSEONG = ["ㄱ","ㄲ","ㄴ","ㄷ","ㄸ","ㄹ","ㅁ","ㅂ","ㅃ","ㅅ","ㅆ","ㅇ","ㅈ","ㅉ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
+  const JUNGSEONG = ["ㅏ","ㅐ","ㅑ","ㅒ","ㅓ","ㅔ","ㅕ","ㅖ","ㅗ","ㅘ","ㅙ","ㅚ","ㅛ","ㅜ","ㅝ","ㅞ","ㅟ","ㅠ","ㅡ","ㅢ","ㅣ"];
+  const JONGSEONG = ["", "ㄱ","ㄲ","ㄳ","ㄴ","ㄵ","ㄶ","ㄷ","ㄹ","ㄺ","ㄻ","ㄼ","ㄽ","ㄾ","ㄿ","ㅀ","ㅁ","ㅂ","ㅄ","ㅅ","ㅆ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
+
+  // 복합 모음 확장
+  const K_VOWEL_EXPAND = new Map([
+    ["ㅐ", ["ㅏ","ㅣ"]],
+    ["ㅔ", ["ㅓ","ㅣ"]],
+    ["ㅒ", ["ㅑ","ㅣ"]],
+    ["ㅖ", ["ㅕ","ㅣ"]],
+    ["ㅘ", ["ㅗ","ㅏ"]],
+    ["ㅙ", ["ㅗ","ㅏ","ㅣ"]],
+    ["ㅚ", ["ㅗ","ㅣ"]],
+    ["ㅝ", ["ㅜ","ㅓ"]],
+    ["ㅞ", ["ㅜ","ㅓ","ㅣ"]],
+    ["ㅟ", ["ㅜ","ㅣ"]],
+    ["ㅢ", ["ㅡ","ㅣ"]],
+  ]);
+
+  function decomposeHangulToJamo(str){
+    const cons = [];
+    const vows = [];
+    for (const ch of (str || "")) {
+      const code = ch.charCodeAt(0);
+      if (code >= 0xAC00 && code <= 0xD7A3) {
+        const sIndex = code - 0xAC00;
+        const cho = Math.floor(sIndex / (21 * 28));
+        const jung = Math.floor((sIndex % (21 * 28)) / 28);
+        const jong = sIndex % 28;
+
+        const c1 = CHOSEONG[cho];
+        const v1 = JUNGSEONG[jung];
+        const cFinal = JONGSEONG[jong];
+
+        if (c1) cons.push(c1);
+        if (v1) vows.push(v1);
+        if (cFinal) cons.push(cFinal);
+      } else {
+        if (K_CONS_VALUE.has(ch) || K_CONS_EXPAND.has(ch)) cons.push(ch);
+        if (K_VOWEL_VALUE.has(ch) || K_VOWEL_EXPAND.has(ch)) vows.push(ch);
+      }
+    }
+
+    const consExpanded = [];
+    for (const c of cons) consExpanded.push(...(K_CONS_EXPAND.get(c) || [c]));
+
+    const vowExpanded = [];
+    for (const v of vows) vowExpanded.push(...(K_VOWEL_EXPAND.get(v) || [v]));
+
+    return { cons: consExpanded, vows: vowExpanded };
+  }
+
+  // 영어 매핑: a~z (표 그대로)
+  const E_VALUE = new Map([
+    ["A",1],["B",2],["C",3],["D",4],["E",5],["F",6],["G",7],["H",8],["I",9],
+    ["J",1],["K",2],["L",3],["M",4],["N",5],["O",6],["P",7],["Q",8],["R",9],
+    ["S",1],["T",2],["U",3],["V",4],["W",5],["X",6],["Y",7],["Z",8],
+  ]);
+  const EN_VOWELS = new Set(["A","E","I","O","U"]); // Y는 자음 취급
+
+  function extractEnglishLetters(str){
+    return (str || "").toUpperCase().replaceAll(/[^A-Z]/g, "").split("");
+  }
+
+  function calcConsonantNumber(fullName){
+    const raw = (fullName || "").trim();
+    if (!raw) return { value: null, master:null, steps: [] };
+
+    const { cons } = decomposeHangulToJamo(raw);
+    const letters = extractEnglishLetters(raw);
+
+    const parts = [];
+    let sum = 0;
+
+    for (const c of cons) {
+      const v = K_CONS_VALUE.get(c);
+      if (v) { parts.push(`${c}(${v})`); sum += v; }
+    }
+    for (const ch of letters) {
+      if (EN_VOWELS.has(ch)) continue;
+      const v = E_VALUE.get(ch);
+      if (v) { parts.push(`${ch.toLowerCase()}(${v})`); sum += v; }
+    }
+
+    if (parts.length === 0) return { value: null, master:null, steps: [] };
+
+    const red = reduceToSingleDigitKeepMasterTag(sum);
+    return { value: red.value, master: red.master, steps: [`${parts.join(" + ")} = ${sum}`, ...red.steps] };
+  }
+
+  function calcVowelNumber(fullName){
+    const raw = (fullName || "").trim();
+    if (!raw) return { value: null, master:null, steps: [] };
+
+    const { vows } = decomposeHangulToJamo(raw);
+    const letters = extractEnglishLetters(raw);
+
+    const parts = [];
+    let sum = 0;
+
+    for (const vj of vows) {
+      const v = K_VOWEL_VALUE.get(vj);
+      if (v) { parts.push(`${vj}(${v})`); sum += v; }
+    }
+    for (const ch of letters) {
+      if (!EN_VOWELS.has(ch)) continue;
+      const v = E_VALUE.get(ch);
+      if (v) { parts.push(`${ch.toLowerCase()}(${v})`); sum += v; }
+    }
+
+    if (parts.length === 0) return { value: null, master:null, steps: [] };
+
+    const red = reduceToSingleDigitKeepMasterTag(sum);
+    return { value: red.value, master: red.master, steps: [`${parts.join(" + ")} = ${sum}`, ...red.steps] };
+  }
+
+  // ---------- 4/5) 더해서 축약 ----------
+  function calcFromTwo(label, a, b){
+    if (a === null || b === null) return { value: null, master:null, steps: [] };
+    const sum = Number(a) + Number(b);
+    const red = reduceToSingleDigitKeepMasterTag(sum);
+    return { value: red.value, master: red.master, steps: [`${label}: ${a} + ${b} = ${sum}`, ...red.steps] };
+  }
+
+  // ---------- 6) 올해의수 ----------
+  function calcThisYearNumber(birthMM, birthDD, nowYear){
+    const yDigits = String(nowYear);
+    const mDigits = String(birthMM);
+    const dDigits = String(birthDD);
+
+    const ySum = sumDigitsStr(yDigits);
+    const mSum = sumDigitsStr(mDigits);
+    const dSum = sumDigitsStr(dDigits);
+
+    const firstSum = ySum + mSum + dSum;
+    const red = reduceToSingleDigitKeepMasterTag(firstSum);
+
+    const steps = [];
+    steps.push(`현재년도(${nowYear}) 자리수 합: ${yDigits.split("").join(" + ")} = ${ySum}`);
+    steps.push(`출생월(${birthMM}) 자리수 합: ${mDigits.split("").join(" + ")} = ${mSum}`);
+    steps.push(`출생일(${birthDD}) 자리수 합: ${dDigits.split("").join(" + ")} = ${dSum}`);
+    steps.push(`${ySum} + ${mSum} + ${dSum} = ${firstSum}`);
+    steps.push(...red.steps);
+
+    return { value: red.value, master: red.master, steps };
+  }
+
+  // ---------- 저장(LocalStorage) + 백업/복원 ----------
+  const STORE_KEY = "numerology_records_v3";
+
+  function loadRecords(){
+    try { return JSON.parse(localStorage.getItem(STORE_KEY) || "[]"); }
+    catch { return []; }
+  }
+  function saveRecords(items){
+    localStorage.setItem(STORE_KEY, JSON.stringify(items));
+  }
+
+  function nowStamp(){
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth()+1).padStart(2,"0");
+    const dd = String(d.getDate()).padStart(2,"0");
+    const hh = String(d.getHours()).padStart(2,"0");
+    const mi = String(d.getMinutes()).padStart(2,"0");
+    return `${yyyy}-${mm}-${dd} ${hh}:${mi}`;
+  }
+
+  function getInputData(){
+    const lastName = ($("lastName").value || "").trim();
+    const firstName = ($("firstName").value || "").trim();
+    const fullName = (lastName + firstName).trim();
+
+    const { y, m, d, hh, mm } = normalizeDateInputs();
+    const err = validateYMDHM(y,m,d,hh,mm);
+    if (err) return { ok:false, err };
+
+    return { ok:true, input: { lastName, firstName, fullName, y, m, d, hh, mm } };
+  }
+
+  function buildRecord(){
+    const t = getInputData();
+    if (!t.ok) return { ok:false, err:t.err };
+
+    const { fullName, y, m, d, hh, mm, lastName, firstName } = t.input;
+
+    const life = calcLifeJourney(y,m,d);
+    const cons = calcConsonantNumber(fullName);
+    const soul = calcVowelNumber(fullName);
+    const destiny = calcFromTwo("운명수", soul.value, cons.value);
+    const complete = calcFromTwo("완성수", life.value, destiny.value);
+    const nowYear = new Date().getFullYear();
+    const yearNum = calcThisYearNumber(m, d, nowYear);
+
+    const id = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random());
+
+    return {
+      ok:true,
+      record: {
+        id,
+        savedAt: Date.now(),
+        savedAtText: nowStamp(),
+        input: { lastName, firstName, fullName, y, m, d, hh, mm },
+        result: { life, cons, soul, destiny, complete, yearNum }
+      }
+    };
+  }
+
+  function downloadJson(filename, dataObj){
+    const blob = new Blob([JSON.stringify(dataObj, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  function renderSavedList(){
+    const el = $("savedList");
+    const q = (($("searchInput")?.value || "").trim()).toLowerCase();
+    const itemsAll = loadRecords().sort((a,b)=>b.savedAt-a.savedAt);
+
+    const items = q
+      ? itemsAll.filter(it => {
+          const name = (it.input.fullName || "").toLowerCase();
+          const y = (it.input.y || "").toLowerCase();
+          const m = (it.input.m || "").toLowerCase();
+          const d = (it.input.d || "").toLowerCase();
+          const key = `${name}${y}${m}${d}`;
+          return key.includes(q);
+        })
+      : itemsAll;
+
+    if (itemsAll.length === 0){
+      el.innerHTML = `저장된 항목이 없어요.`;
+      return;
+    }
+    if (items.length === 0){
+      el.innerHTML = `검색 결과가 없어요.`;
+      return;
+    }
+
+    el.innerHTML = items.map(it => {
+      const name = it.input.fullName || "(이름 없음)";
+      const year = it.input.y || "";
+      const title = `${name}${year}`; // 예: 최은실1977
+
+      return `
+        <div class="rowLine" style="padding:10px;border-radius:14px;border:1px solid rgba(255,255,255,.10);background:rgba(255,255,255,.04);margin-top:10px">
+          <div style="min-width:240px">
+            <div style="font-weight:950">${escapeHtml(title)}</div>
+            <div class="hint" style="margin:2px 0 0">저장: ${escapeHtml(it.savedAtText)}</div>
+          </div>
+          <div>
+            <button class="miniBtn" data-load="${it.id}">불러오기</button>
+            <button class="miniBtn" data-del="${it.id}">삭제</button>
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    el.querySelectorAll("button[data-load]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const id = btn.getAttribute("data-load");
+        const item = loadRecords().find(x => x.id === id);
+        if (!item) return;
+
+        $("lastName").value = item.input.lastName || "";
+        $("firstName").value = item.input.firstName || "";
+        $("yyyy").value = item.input.y || "";
+        $("MM").value = item.input.m || "";
+        $("dd").value = item.input.d || "";
+        $("hh").value = item.input.hh || "";
+        $("min").value = item.input.mm || "";
+
+        $("calcBtn").click();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    });
+
+    el.querySelectorAll("button[data-del]").forEach(btn=>{
+      btn.addEventListener("click", ()=>{
+        const id = btn.getAttribute("data-del");
+        const next = loadRecords().filter(x => x.id !== id);
+        saveRecords(next);
+        renderSavedList();
+      });
+    });
+  }
+
+  // ---------- 숫자 클릭으로 수식 토글 ----------
+  function attachToggle(boxId, numId){
+    const box = $(boxId);
+    const v = $(numId);
+    v.addEventListener("click", () => box.classList.toggle("open"));
+  }
+
+  // ---------- PWA ----------
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js"));
+  }
+
+  // ---------- 이벤트 ----------
+  ["yyyy","MM","dd","hh","min"].forEach(id=>{
+    $(id).addEventListener("blur", ()=> normalizeDateInputs());
+  });
+
+  $("calcBtn").addEventListener("click", ()=>{
+    const lastName = ($("lastName").value || "").trim();
+    const firstName = ($("firstName").value || "").trim();
+    const fullName = (lastName + firstName).trim();
+
+    const { y, m, d, hh, mm } = normalizeDateInputs();
+    const err = validateYMDHM(y,m,d,hh,mm);
+    if (err) { alert(err); return; }
+
+    const life = calcLifeJourney(y,m,d);
+    setBox("lifeNum","lifeDetail","box-life", life);
+
+    const cons = calcConsonantNumber(fullName);
+    setBox("personalityNum","personalityDetail","box-personality", cons);
+
+    const soul = calcVowelNumber(fullName);
+    setBox("soulNum","soulDetail","box-soul", soul);
+
+    const destiny = calcFromTwo("운명수", soul.value, cons.value);
+    setBox("destinyNum","destinyDetail","box-destiny", destiny);
+
+    const complete = calcFromTwo("완성수", life.value, destiny.value);
+    setBox("completeNum","completeDetail","box-complete", complete);
+
+    const nowYear = new Date().getFullYear();
+    const yearNum = calcThisYearNumber(m, d, nowYear);
+    setBox("yearNum","yearDetail","box-year", yearNum);
+
+    renderSavedList();
+  });
+
+  $("saveBtn").addEventListener("click", ()=>{
+    const built = buildRecord();
+    if (!built.ok){ alert(built.err); return; }
+    const items = loadRecords();
+    items.push(built.record);
+    saveRecords(items);
+    renderSavedList();
+    alert("저장 완료!");
+  });
+
+  $("resetBtn").addEventListener("click", ()=>{
+    $("lastName").value = "";
+    $("firstName").value = "";
+    $("yyyy").value = "";
+    $("MM").value = "";
+    $("dd").value = "";
+    $("hh").value = "";
+    $("min").value = "";
+
+    ["box-life","box-personality","box-soul","box-destiny","box-complete","box-year"].forEach(id=>$(id).classList.remove("open"));
+    ["lifeNum","personalityNum","soulNum","destinyNum","completeNum","yearNum"].forEach(id=>$(id).textContent="-");
+    ["lifeDetail","personalityDetail","soulDetail","destinyDetail","completeDetail","yearDetail"].forEach(id=>$(id).textContent="");
+
+    $("lastName").focus();
+  });
+
+  $("searchInput").addEventListener("input", () => renderSavedList());
+
+  $("exportBtn").addEventListener("click", ()=>{
+    const data = loadRecords();
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth()+1).padStart(2,"0");
+    const dd = String(d.getDate()).padStart(2,"0");
+    downloadJson(`numerology-backup-${yyyy}${mm}${dd}.json`, {
+      exportedAt: new Date().toISOString(),
+      version: 1,
+      records: data
+    });
+  });
+
+  $("importBtn").addEventListener("click", ()=> $("importFile").click());
+
+  $("importFile").addEventListener("change", async (e)=>{
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const parsed = JSON.parse(text);
+
+      const incoming = Array.isArray(parsed) ? parsed : (parsed.records || []);
+      if (!Array.isArray(incoming)) throw new Error("형식이 올바르지 않음");
+
+      const current = loadRecords();
+      const map = new Map(current.map(r => [r.id, r]));
+
+      for (const r of incoming) {
+        const id = r.id || (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random());
+        r.id = id;
+        if (!r.input || !r.result) continue;
+        map.set(id, r);
+      }
+
+      saveRecords(Array.from(map.values()));
+      e.target.value = "";
+      renderSavedList();
+      alert("가져오기 완료!");
+    } catch (err) {
+      e.target.value = "";
+      alert("가져오기 실패: JSON 파일 형식을 확인해줘.");
+    }
+  });
+
+  // 토글 연결
+  attachToggle("box-life","lifeNum");
+  attachToggle("box-personality","personalityNum");
+  attachToggle("box-soul","soulNum");
+  attachToggle("box-destiny","destinyNum");
+  attachToggle("box-complete","completeNum");
+  attachToggle("box-year","yearNum");
+
+  renderSavedList();
+</script>
+</body>
+</html>
