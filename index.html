@@ -30,11 +30,19 @@
     .grid2 { display:grid; gap: 10px; grid-template-columns: 1fr 1fr; }
     @media (max-width: 560px){ .grid2{ grid-template-columns: 1fr; } }
 
-    .dtline { display:flex; gap:6px; align-items:center; flex-wrap: nowrap; }
-    .dtline span { opacity: .75; }
-    .dtline input { text-align:center; padding: 12px 10px; }
-    .wY { flex: 2.2; min-width: 96px; }
-    .wS { flex: 1; min-width: 56px; }
+    .dtline { display:flex; gap:4px; align-items:center; flex-wrap: nowrap; }
+    .dtline span { opacity: .75; font-size:12px; }
+    .dtline input { text-align:center; padding: 10px 6px; font-size:14px; }
+    .wY { flex: 1.65; min-width: 74px; }
+    .wS { flex: .9; min-width: 42px; }
+    @media (max-width: 420px){
+      .wrap { padding: 10px; }
+      .card { padding: 12px; }
+      .dtline { gap:3px; }
+      .dtline input { padding: 9px 4px; font-size:13px; border-radius:10px; }
+      .wY { min-width: 66px; }
+      .wS { min-width: 36px; }
+    }
 
     .results { margin-top: 14px; display:grid; gap: 10px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
     @media (max-width: 720px){ .results{ grid-template-columns: 1fr; } }
@@ -71,9 +79,15 @@
     @media (max-width: 640px){ .keywordGrid{ grid-template-columns: 1fr; } }
     .keywordItem { padding:9px; border-radius:12px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.09); font-size:13px; line-height:1.45; }
     .numGridWrap { margin-top:12px; overflow-x:auto; }
-    .numGrid { min-width:650px; display:grid; grid-template-columns: 110px 135px 1fr 1fr 1fr 115px; border:1px solid rgba(255,255,255,.16); border-radius:14px; overflow:hidden; }
-    .numGrid > div { min-height:58px; padding:8px; border-right:1px solid rgba(255,255,255,.14); border-bottom:1px solid rgba(255,255,255,.14); box-sizing:border-box; font-size:13px; line-height:1.35; background:rgba(255,255,255,.03); }
-    .numGrid > div:nth-child(6n){ border-right:0; }
+    .numGrid { min-width:520px; display:grid; grid-template-columns: 132px 1fr 1fr 1fr 92px; border:1px solid rgba(255,255,255,.16); border-radius:14px; overflow:hidden; }
+    .numGrid > div { min-height:48px; padding:6px; border-right:1px solid rgba(255,255,255,.14); border-bottom:1px solid rgba(255,255,255,.14); box-sizing:border-box; font-size:12px; line-height:1.28; background:rgba(255,255,255,.03); }
+    .numGrid > div:nth-child(5n){ border-right:0; }
+    @media (max-width: 560px){
+      .numGrid { min-width: 460px; grid-template-columns: 112px 1fr 1fr 1fr 72px; }
+      .numGrid > div { min-height:44px; padding:5px; font-size:11px; }
+      .baseNum { top:4px; left:6px; font-size:12px; }
+      .calcNums { left:6px; top:23px; right:6px; font-size:16px; }
+    }
     .numGrid .cell { position:relative; font-size:20px; font-weight:950; }
     .numGrid .axis { opacity:.9; }
     .numGrid .corner { background:rgba(0,0,0,.12); }
@@ -184,11 +198,11 @@
         <div class="desc">생년월일 8자리 숫자 + 인생여정수 1개, 총 9개의 숫자를 1~9 자리에 채워 보여줍니다.</div>
         <div class="numGridWrap">
           <div class="numGrid">
-            <div class="corner"></div><div class="corner"></div><div class="axis"></div><div class="axis"></div><div class="axis"></div><div class="axis">결단력, 불굴의 의지<br>(1,5,9)</div>
-            <div class="axis">정신(3,6,9)</div><div class="axis">지능, 분석력</div><div class="cell" id="grid3"><span class="baseNum">③</span><span class="calcNums"></span></div><div class="cell" id="grid6"><span class="baseNum">⑥</span><span class="calcNums"></span></div><div class="cell" id="grid9"><span class="baseNum">⑨</span><span class="calcNums"></span></div><div class="corner"></div>
-            <div class="axis">감정(2,5,8)</div><div class="axis">감수성, 공감력,<br>영적, 상담</div><div class="cell" id="grid2"><span class="baseNum">②</span><span class="calcNums"></span></div><div class="cell" id="grid5"><span class="baseNum">⑤</span><span class="calcNums"></span></div><div class="cell" id="grid8"><span class="baseNum">⑧</span><span class="calcNums"></span></div><div class="corner"></div>
-            <div class="axis">육체(1,4,7)</div><div class="axis">육체적, 본능적,<br>인내심많음</div><div class="cell" id="grid1"><span class="baseNum">①</span><span class="calcNums"></span></div><div class="cell" id="grid4"><span class="baseNum">④</span><span class="calcNums"></span></div><div class="cell" id="grid7"><span class="baseNum">⑦</span><span class="calcNums"></span></div><div class="corner"></div>
-            <div class="corner"></div><div class="corner"></div><div class="axis">사고, 아이디어<br>(1,2,3)</div><div class="axis">의지, 계획,<br>결단력, 정리<br>(4,5,6)</div><div class="axis">행동, 실천<br>(7,8,9)</div><div class="axis">연민, 인류애,<br>자비심(3,5,7)</div>
+            <div class="corner"></div><div class="axis"></div><div class="axis"></div><div class="axis"></div><div class="axis">결단력,<br>불굴의 의지<br>(1,5,9)</div>
+            <div class="axis">정신(3,6,9)<br>지능, 분석력</div><div class="cell" id="grid3"><span class="baseNum">③</span><span class="calcNums"></span></div><div class="cell" id="grid6"><span class="baseNum">⑥</span><span class="calcNums"></span></div><div class="cell" id="grid9"><span class="baseNum">⑨</span><span class="calcNums"></span></div><div class="corner"></div>
+            <div class="axis">감정(2,5,8)<br>감수성, 공감력,<br>영적, 상담</div><div class="cell" id="grid2"><span class="baseNum">②</span><span class="calcNums"></span></div><div class="cell" id="grid5"><span class="baseNum">⑤</span><span class="calcNums"></span></div><div class="cell" id="grid8"><span class="baseNum">⑧</span><span class="calcNums"></span></div><div class="corner"></div>
+            <div class="axis">육체(1,4,7)<br>육체적, 본능적,<br>인내심많음</div><div class="cell" id="grid1"><span class="baseNum">①</span><span class="calcNums"></span></div><div class="cell" id="grid4"><span class="baseNum">④</span><span class="calcNums"></span></div><div class="cell" id="grid7"><span class="baseNum">⑦</span><span class="calcNums"></span></div><div class="corner"></div>
+            <div class="corner"></div><div class="axis">사고,<br>아이디어<br>(1,2,3)</div><div class="axis">의지, 계획,<br>결단력, 정리<br>(4,5,6)</div><div class="axis">행동, 실천<br>(7,8,9)</div><div class="axis">연민, 인류애,<br>자비심<br>(3,5,7)</div>
           </div>
         </div>
         <div class="analysisResult" id="matrixAnalysis">계산하면 숫자 과다/결핍 해석이 여기에 표시됩니다.</div>
