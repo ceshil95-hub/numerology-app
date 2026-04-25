@@ -11,7 +11,8 @@
     body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", sans-serif; background:#0b1220; color:#e5e7eb; }
     .wrap { max-width: 900px; margin: 0 auto; padding: 16px; }
     .card { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); border-radius: 18px; padding: 14px; }
-    h1 { font-size: 18px; margin: 0 0 10px; }
+    h1 { font-size: 18px; margin: 0 0 10px; display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; }
+    .creator { font-size: 11px; font-weight: 700; opacity: .62; letter-spacing: .02em; }
     h2 { font-size: 15px; margin: 16px 0 8px; }
     label { font-size: 13px; opacity: .9; display:block; margin: 10px 0 6px; }
     input {
@@ -25,6 +26,7 @@
       flex: 1; min-width: 140px;
     }
     button.secondary { background: rgba(255,255,255,.14); }
+    button.saveAction { background:#16a34a; }
     .grid2 { display:grid; gap: 10px; grid-template-columns: 1fr 1fr; }
     @media (max-width: 560px){ .grid2{ grid-template-columns: 1fr; } }
 
@@ -61,12 +63,37 @@
       margin-left: 6px;
     }
     .rowLine{ display:flex; justify-content: space-between; gap:10px; flex-wrap: wrap; align-items:flex-start; }
+
+    .desc { font-size: 12px; opacity:.72; margin-top:3px; line-height:1.35; }
+    .v small { font-size: 13px; font-weight:800; opacity:.88; margin-left:6px; }
+    .keywordTitle { cursor:pointer; user-select:none; display:flex; justify-content:space-between; align-items:center; }
+    .keywordGrid { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:8px; margin-top:10px; }
+    @media (max-width: 640px){ .keywordGrid{ grid-template-columns: 1fr; } }
+    .keywordItem { padding:9px; border-radius:12px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.09); font-size:13px; line-height:1.45; }
+    .numGridWrap { margin-top:12px; overflow-x:auto; }
+    .numGrid { min-width:650px; display:grid; grid-template-columns: 110px 135px 1fr 1fr 1fr 115px; border:1px solid rgba(255,255,255,.16); border-radius:14px; overflow:hidden; }
+    .numGrid > div { min-height:58px; padding:8px; border-right:1px solid rgba(255,255,255,.14); border-bottom:1px solid rgba(255,255,255,.14); box-sizing:border-box; font-size:13px; line-height:1.35; background:rgba(255,255,255,.03); }
+    .numGrid > div:nth-child(6n){ border-right:0; }
+    .numGrid .cell { position:relative; font-size:20px; font-weight:950; }
+    .numGrid .axis { opacity:.9; }
+    .numGrid .corner { background:rgba(0,0,0,.12); }
+    .baseNum { position:absolute; top:6px; left:8px; font-size:13px; font-weight:800; opacity:.72; }
+    .calcNums { position:absolute; left:8px; top:28px; right:8px; color:#60a5fa; font-size:20px; font-weight:950; line-height:1.25; word-break:break-all; }
+    .calcNums:empty::after { content:""; }
+    .pill { display:inline-flex; min-width:26px; height:26px; padding:0 6px; align-items:center; justify-content:center; border-radius:999px; background:rgba(37,99,235,.35); border:1px solid rgba(255,255,255,.18); }
+    .zodiacLine { display:grid; grid-template-columns: 90px 1fr; gap:8px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,.08); }
+    .zodiacLine:last-child{ border-bottom:0; }
+    .section-title { font-size: 17px; font-weight: 950; opacity: .98; letter-spacing: -.01em; }
+    .analysisResult { margin-top:12px; padding:10px; border-radius:14px; background:rgba(37,99,235,.08); border:1px solid rgba(96,165,250,.22); font-size:13px; line-height:1.6; }
+    .analysisResult strong { color:#93c5fd; }
+    .analysisResult ul { margin:6px 0 0 18px; padding:0; }
+    .analysisResult li { margin:4px 0; }
   </style>
 </head>
 <body>
   <div class="wrap">
     <div class="card">
-      <h1>수비학 앱</h1>
+      <h1>수비학 앱 <span class="creator">created by choi eun shil</span></h1>
 
       <h2>1. 성함</h2>
       <div class="grid2">
@@ -102,41 +129,76 @@
 
       <div class="row">
         <button id="calcBtn">계산하기</button>
-        <button id="saveBtn" class="secondary">저장</button>
+        <button id="saveBtn" class="saveAction">저장하기</button>
         <button id="resetBtn" class="secondary">초기화</button>
       </div>
 
       <div class="results">
         <div class="box" id="box-life">
-          <div class="k">1) 인생여정수</div>
+          <div class="section-title">1) 인생여정수</div>
+          <div class="desc">타고난 재능</div>
           <div class="v" id="lifeNum">-</div>
           <div class="detail" id="lifeDetail"></div>
         </div>
         <div class="box" id="box-personality">
-          <div class="k">2) 성격수 (자음)</div>
+          <div class="section-title">2) 성격수 (자음)</div>
+          <div class="desc">남에게 보여지는 외적성향</div>
           <div class="v" id="personalityNum">-</div>
           <div class="detail" id="personalityDetail"></div>
         </div>
         <div class="box" id="box-soul">
-          <div class="k">3) 혼의수 (모음)</div>
+          <div class="section-title">3) 혼의수 (모음)</div>
+          <div class="desc">영혼, 마음이 갈망하는 본성</div>
           <div class="v" id="soulNum">-</div>
           <div class="detail" id="soulDetail"></div>
         </div>
         <div class="box" id="box-destiny">
-          <div class="k">4) 운명수 (혼의수 + 성격수)</div>
+          <div class="section-title">4) 운명수 (이름전체)</div>
+          <div class="desc">살아갈 방향, 목적</div>
           <div class="v" id="destinyNum">-</div>
           <div class="detail" id="destinyDetail"></div>
         </div>
         <div class="box" id="box-complete">
-          <div class="k">5) 완성수 (인생여정수 + 운명수)</div>
+          <div class="section-title">5) 완성수 (여정수 + 운명수)</div>
+          <div class="desc">35세 이후 방향</div>
           <div class="v" id="completeNum">-</div>
           <div class="detail" id="completeDetail"></div>
         </div>
         <div class="box" id="box-year">
-          <div class="k">6) 올해의수 (현재년도 + 출생월 + 출생일)</div>
+          <div class="section-title">6) 올해의수 (현재년도 + 출생월 + 출생일)</div>
           <div class="v" id="yearNum">-</div>
           <div class="detail" id="yearDetail"></div>
         </div>
+      </div>
+
+      <div class="box" style="margin-top:12px">
+        <div class="keywordTitle" id="keywordToggle">
+          <div class="section-title">수비학 키워드</div>
+          <div class="k">누르면 열기/닫기</div>
+        </div>
+        <div class="detail" id="keywordPanel"></div>
+      </div>
+
+      <div class="box" style="margin-top:12px">
+        <div class="section-title">수비학 성격분석</div>
+        <div class="desc">생년월일 8자리 숫자 + 인생여정수 1개, 총 9개의 숫자를 1~9 자리에 채워 보여줍니다.</div>
+        <div class="numGridWrap">
+          <div class="numGrid">
+            <div class="corner"></div><div class="corner"></div><div class="axis"></div><div class="axis"></div><div class="axis"></div><div class="axis">결단력, 불굴의 의지<br>(1,5,9)</div>
+            <div class="axis">정신(3,6,9)</div><div class="axis">지능, 분석력</div><div class="cell" id="grid3"><span class="baseNum">③</span><span class="calcNums"></span></div><div class="cell" id="grid6"><span class="baseNum">⑥</span><span class="calcNums"></span></div><div class="cell" id="grid9"><span class="baseNum">⑨</span><span class="calcNums"></span></div><div class="corner"></div>
+            <div class="axis">감정(2,5,8)</div><div class="axis">감수성, 공감력,<br>영적, 상담</div><div class="cell" id="grid2"><span class="baseNum">②</span><span class="calcNums"></span></div><div class="cell" id="grid5"><span class="baseNum">⑤</span><span class="calcNums"></span></div><div class="cell" id="grid8"><span class="baseNum">⑧</span><span class="calcNums"></span></div><div class="corner"></div>
+            <div class="axis">육체(1,4,7)</div><div class="axis">육체적, 본능적,<br>인내심많음</div><div class="cell" id="grid1"><span class="baseNum">①</span><span class="calcNums"></span></div><div class="cell" id="grid4"><span class="baseNum">④</span><span class="calcNums"></span></div><div class="cell" id="grid7"><span class="baseNum">⑦</span><span class="calcNums"></span></div><div class="corner"></div>
+            <div class="corner"></div><div class="corner"></div><div class="axis">사고, 아이디어<br>(1,2,3)</div><div class="axis">의지, 계획,<br>결단력, 정리<br>(4,5,6)</div><div class="axis">행동, 실천<br>(7,8,9)</div><div class="axis">연민, 인류애,<br>자비심(3,5,7)</div>
+          </div>
+        </div>
+        <div class="analysisResult" id="matrixAnalysis">계산하면 숫자 과다/결핍 해석이 여기에 표시됩니다.</div>
+      </div>
+
+      <div class="box" style="margin-top:12px">
+        <div class="section-title">별자리</div>
+        <div class="zodiacLine"><strong>태양</strong><div id="sunSign">-</div></div>
+        <div class="zodiacLine"><strong>달</strong><input id="moonSign" placeholder="직접 입력" /></div>
+        <div class="zodiacLine"><strong>ASC</strong><input id="ascSign" placeholder="직접 입력" /></div>
       </div>
 
       <div class="box" style="margin-top:12px">
@@ -156,6 +218,30 @@
 <script>
   const $ = (id) => document.getElementById(id);
 
+  const NUM_KEYWORDS = {
+    1: { title:"시작 / 리더", text:"창조, 시작, 독립, 주도성, 리더십" },
+    2: { title:"관계 / 조화", text:"협력, 배려, 감정, 균형, 파트너십" },
+    3: { title:"표현 / 즐거움", text:"창의성, 표현력, 언어, 예술, 낙천성" },
+    4: { title:"기반 / 현실", text:"안정, 노력, 책임, 구조, 성실함" },
+    5: { title:"변화 / 자유", text:"변화, 자유, 이동, 경험, 도전" },
+    6: { title:"사랑 / 책임", text:"가족, 헌신, 보호, 조화, 책임감" },
+    7: { title:"탐구 / 내면", text:"분석, 철학, 영성, 고독, 통찰" },
+    8: { title:"물질 / 권력", text:"성공, 돈, 권력, 성취, 현실적 결과" },
+    9: { title:"완성 / 나눔", text:"완성, 희생, 봉사, 인류애, 마무리" },
+    11: { title:"직관의 메신저", text:"직관, 영감, 감수성, 깨달음, 영적 연결" },
+    22: { title:"현실 창조자", text:"구축, 실현, 조직, 큰 성취, 시스템" },
+    33: { title:"무조건적 사랑", text:"치유, 봉사, 사랑, 헌신, 인류애" },
+  };
+
+  const CIRCLED = {1:"①",2:"②",3:"③",4:"④",5:"⑤",6:"⑥",7:"⑦",8:"⑧",9:"⑨"};
+
+  function keywordTitleFor(obj){
+    if (!obj || obj.value == null) return "";
+    const key = obj.master || obj.value;
+    return NUM_KEYWORDS[key]?.title || NUM_KEYWORDS[obj.value]?.title || "";
+  }
+
+
   // ---------- 공통 유틸 ----------
   function escapeHtml(str){
     return String(str ?? "")
@@ -167,8 +253,8 @@
   }
 
   function onlyDigits(s){ return (s ?? "").toString().replaceAll(/[^0-9]/g, ""); }
-  function pad2(s){ s = onlyDigits(s); return s.padStart(2, "0").slice(0,2); }
-  function pad4(s){ s = onlyDigits(s); return s.padStart(4, "0").slice(0,4); }
+  function pad2(s){ s = onlyDigits(s); return s ? s.padStart(2, "0").slice(0,2) : ""; }
+  function pad4(s){ s = onlyDigits(s); return s ? s.padStart(4, "0").slice(0,4) : ""; }
 
   function normalizeDateInputs(){
     const y = pad4($("yyyy").value);
@@ -226,12 +312,101 @@
   }
 
   function setBox(numId, detailId, boxId, obj){
-    $(numId).textContent = fmtValue(obj.value, obj.master);
+    const kw = keywordTitleFor(obj);
+    $(numId).innerHTML = `${escapeHtml(fmtValue(obj.value, obj.master))}${kw ? ` <small>${escapeHtml(kw)}</small>` : ""}`;
     $(detailId).textContent = (obj.steps || []).join("\n");
 
     // 계산할 때마다 닫힌 상태로
     const box = $(boxId);
     box.classList.remove("open");
+  }
+
+  function renderKeywordPanel(){
+    const keys = [1,2,3,4,5,6,7,8,9,11,22,33];
+    $("keywordPanel").innerHTML = `<div class="keywordGrid">${keys.map(n=>`
+      <div class="keywordItem"><strong>${n}. ${escapeHtml(NUM_KEYWORDS[n].title)}</strong> : ${escapeHtml(NUM_KEYWORDS[n].text)}</div>
+    `).join("")}</div>`;
+  }
+
+  function renderPersonalityGrid(yyyy, MM, dd, lifeObj){
+    const digits = `${yyyy}${MM}${dd}${lifeObj?.value ?? ""}`.replaceAll(/[^1-9]/g, "").split("");
+    const counts = {};
+    for (let n=1; n<=9; n++) {
+      const count = digits.filter(x => x === String(n)).length;
+      counts[n] = count;
+      const cell = $("grid"+n);
+      cell.innerHTML = `<span class="baseNum">${CIRCLED[n]}</span><span class="calcNums">${count ? Array(count).fill(String(n)).join(", ") : ""}</span>`;
+    }
+    renderMatrixAnalysis(counts);
+  }
+
+  const MATRIX_MEANING = {
+    1: "주도성·자기표현·시작의 힘",
+    2: "관계감각·배려·감정의 균형",
+    3: "표현력·창의성·언어 감각",
+    4: "현실감·책임감·기반을 세우는 힘",
+    5: "변화·자유·경험을 통한 성장",
+    6: "사랑·보호·가족과 책임",
+    7: "탐구·내면·분석과 통찰",
+    8: "성취·물질·현실적 결과",
+    9: "완성·나눔·넓은 시야와 포용"
+  };
+
+  function renderMatrixAnalysis(counts){
+    const over = [];
+    const lack = [];
+    for (let n=1; n<=9; n++) {
+      const c = counts[n] || 0;
+      if (c >= 3) over.push(`${CIRCLED[n]} ${MATRIX_MEANING[n]}이 강하게 반복됩니다. 장점으로는 힘이 크지만, 과하면 고집·집착·편중으로 나타날 수 있습니다.`);
+      if (c === 0) lack.push(`${CIRCLED[n]} ${MATRIX_MEANING[n]}이 비어 있습니다. 부족함이라기보다 의식적으로 배워가야 할 영역으로 볼 수 있습니다.`);
+    }
+    const el = $("matrixAnalysis");
+    if (!el) return;
+    let html = "";
+    if (over.length) html += `<strong>과다 숫자</strong><ul>${over.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul>`;
+    else html += `<strong>과다 숫자</strong><br>3개 이상 반복되는 숫자는 없습니다.`;
+    html += `<br>`;
+    if (lack.length) html += `<strong>결핍 숫자</strong><ul>${lack.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul>`;
+    else html += `<strong>결핍 숫자</strong><br>비어 있는 숫자는 없습니다.`;
+    el.innerHTML = html;
+  }
+
+  const SUN_SIGN_INFO = {
+    "양자리": "♈ 양자리 → 생각보다 행동이 먼저 나가는 직진형",
+    "황소자리": "♉ 황소자리 → 느리지만 끝까지 가는 안정 추구형",
+    "쌍둥이자리": "♊ 쌍둥이자리 → 빠르게 배우고 쉽게 질리는 호기심형",
+    "게자리": "♋ 게자리 → 사람을 챙기지만 상처에 민감한 보호형",
+    "사자자리": "♌ 사자자리 → 인정받고 중심에 서야 힘나는 자존형",
+    "처녀자리": "♍ 처녀자리 → 디테일과 완성도를 집요하게 보는 분석형",
+    "천칭자리": "♎ 천칭자리 → 관계와 균형을 맞추는 조율형",
+    "전갈자리": "♏ 전갈자리 → 깊게 파고 끝까지 가는 집착형",
+    "사수자리": "♐ 사수자리 → 자유와 경험을 좇는 확장형",
+    "염소자리": "♑ 염소자리 → 목표와 결과로 증명하는 현실형",
+    "물병자리": "♒ 물병자리 → 틀을 깨고 다르게 생각하는 혁신형",
+    "물고기자리": "♓ 물고기자리 → 감정과 공감으로 움직이는 감성형"
+  };
+
+  function getSunSign(mm, dd){
+    const m = Number(mm), d = Number(dd);
+    const md = m*100 + d;
+    if (md >= 321 && md <= 419) return "양자리";
+    if (md >= 420 && md <= 520) return "황소자리";
+    if (md >= 521 && md <= 621) return "쌍둥이자리";
+    if (md >= 622 && md <= 722) return "게자리";
+    if (md >= 723 && md <= 822) return "사자자리";
+    if (md >= 823 && md <= 922) return "처녀자리";
+    if (md >= 923 && md <= 1023) return "천칭자리";
+    if (md >= 1024 && md <= 1122) return "전갈자리";
+    if (md >= 1123 && md <= 1221) return "사수자리";
+    if (md >= 1222 || md <= 119) return "염소자리";
+    if (md >= 120 && md <= 218) return "물병자리";
+    if (md >= 219 && md <= 320) return "물고기자리";
+    return "-";
+  }
+
+  function renderZodiac(MM, dd){
+    const sign = getSunSign(MM, dd);
+    $("sunSign").textContent = SUN_SIGN_INFO[sign] || "-";
   }
 
   // ---------- 1) 인생여정수 ----------
@@ -479,7 +654,7 @@
         id,
         savedAt: Date.now(),
         savedAtText: nowStamp(),
-        input: { lastName, firstName, fullName, y, m, d, hh, mm },
+        input: { lastName, firstName, fullName, y, m, d, hh, mm, moonSign: ($("moonSign")?.value || "").trim(), ascSign: ($("ascSign")?.value || "").trim() },
         result: { life, cons, soul, destiny, complete, yearNum }
       }
     };
@@ -554,6 +729,8 @@
         $("dd").value = item.input.d || "";
         $("hh").value = item.input.hh || "";
         $("min").value = item.input.mm || "";
+        if ($("moonSign")) $("moonSign").value = item.input.moonSign || "";
+        if ($("ascSign")) $("ascSign").value = item.input.ascSign || "";
 
         $("calcBtn").click();
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -584,6 +761,7 @@
 
   // ---------- 이벤트 ----------
   ["yyyy","MM","dd","hh","min"].forEach(id=>{
+    $(id).addEventListener("focus", (e)=> e.target.select());
     $(id).addEventListener("blur", ()=> normalizeDateInputs());
   });
 
@@ -598,6 +776,8 @@
 
     const life = calcLifeJourney(y,m,d);
     setBox("lifeNum","lifeDetail","box-life", life);
+    renderPersonalityGrid(y, m, d, life);
+    renderZodiac(m, d);
 
     const cons = calcConsonantNumber(fullName);
     setBox("personalityNum","personalityDetail","box-personality", cons);
@@ -636,10 +816,17 @@
     $("dd").value = "";
     $("hh").value = "";
     $("min").value = "";
+    if ($("moonSign")) $("moonSign").value = "";
+    if ($("ascSign")) $("ascSign").value = "";
 
     ["box-life","box-personality","box-soul","box-destiny","box-complete","box-year"].forEach(id=>$(id).classList.remove("open"));
     ["lifeNum","personalityNum","soulNum","destinyNum","completeNum","yearNum"].forEach(id=>$(id).textContent="-");
     ["lifeDetail","personalityDetail","soulDetail","destinyDetail","completeDetail","yearDetail"].forEach(id=>$(id).textContent="");
+    for (let n=1; n<=9; n++) $("grid"+n).innerHTML = `<span class="baseNum">${CIRCLED[n]}</span><span class="calcNums"></span>`;
+    if ($("matrixAnalysis")) $("matrixAnalysis").textContent = "계산하면 숫자 과다/결핍 해석이 여기에 표시됩니다.";
+    $("sunSign").textContent = "-";
+    if ($("moonSign")) $("moonSign").value = "";
+    if ($("ascSign")) $("ascSign").value = "";
 
     $("lastName").focus();
   });
@@ -700,6 +887,10 @@
   attachToggle("box-complete","completeNum");
   attachToggle("box-year","yearNum");
 
+  renderKeywordPanel();
+  $("keywordToggle").addEventListener("click", () => {
+    $("keywordPanel").style.display = ($("keywordPanel").style.display === "block" ? "none" : "block");
+  });
   renderSavedList();
 </script>
 </body>
