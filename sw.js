@@ -1,4 +1,4 @@
-const CACHE = "numerology-app-v14";
+const CACHE = "numerology-app-v15";
 const ASSETS = ["./", "./index.html", "./manifest.webmanifest", "./sw.js"];
 self.addEventListener("install", (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ASSETS)));
