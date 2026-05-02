@@ -7,7 +7,7 @@
   <title>수비학 앱</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <style>
-    :root { color-scheme: light dark; }
+    :root { color-scheme: dark; }
     body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, "Noto Sans KR", sans-serif; background:#0b1220; color:#e5e7eb; }
     .wrap { max-width: 900px; margin: 0 auto; padding: 16px; }
     .card { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); border-radius: 18px; padding: 14px; }
@@ -16,8 +16,8 @@
     h2 { font-size: 15px; margin: 16px 0 8px; }
     label { font-size: 13px; opacity: .9; display:block; margin: 10px 0 6px; }
     input {
-      width: 100%; box-sizing: border-box; border-radius: 12px; border: 1px solid rgba(255,255,255,.16);
-      padding: 12px; background: rgba(0,0,0,.25); color: inherit; outline: none;
+      width: 100%; box-sizing: border-box; border-radius: 12px; border: 1px solid #d1d5db;
+      padding: 12px; background:#0b1220; color:#e5e7eb; outline: none;
     }
     .hint { font-size: 12px; opacity: .75; margin-top: 6px; line-height: 1.4; }
     .row { display:flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
@@ -80,19 +80,19 @@
     .keywordItem { padding:9px; border-radius:12px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.09); font-size:13px; line-height:1.45; }
     .numGridWrap { margin-top:12px; overflow-x:auto; }
     .numGrid { min-width:520px; display:grid; grid-template-columns: 132px 1fr 1fr 1fr 92px; border:1px solid rgba(255,255,255,.16); border-radius:14px; overflow:hidden; }
-    .numGrid > div { min-height:48px; padding:6px; border-right:1px solid rgba(255,255,255,.14); border-bottom:1px solid rgba(255,255,255,.14); box-sizing:border-box; font-size:12px; line-height:1.28; background:rgba(255,255,255,.03); }
+    .numGrid > div { min-height:62px; padding:7px; border-right:1px solid rgba(255,255,255,.14); border-bottom:1px solid rgba(255,255,255,.14); box-sizing:border-box; font-size:12px; line-height:1.28; background:rgba(255,255,255,.03); }
     .numGrid > div:nth-child(5n){ border-right:0; }
     @media (max-width: 560px){
       .numGrid { min-width: 460px; grid-template-columns: 112px 1fr 1fr 1fr 72px; }
-      .numGrid > div { min-height:44px; padding:5px; font-size:11px; }
+      .numGrid > div { min-height:56px; padding:6px; font-size:11px; }
       .baseNum { top:4px; left:6px; font-size:12px; }
-      .calcNums { left:6px; top:23px; right:6px; font-size:16px; }
+      .calcNums { left:6px; top:25px; right:6px; font-size:16px; }
     }
     .numGrid .cell { position:relative; font-size:20px; font-weight:950; }
     .numGrid .axis { opacity:.9; }
     .numGrid .corner { background:rgba(0,0,0,.12); }
     .baseNum { position:absolute; top:6px; left:8px; font-size:13px; font-weight:800; opacity:.72; }
-    .calcNums { position:absolute; left:8px; top:28px; right:8px; color:#60a5fa; font-size:20px; font-weight:950; line-height:1.25; word-break:break-all; }
+    .calcNums { position:absolute; left:8px; top:30px; right:8px; color:#60a5fa; font-size:18px; font-weight:950; line-height:1.25; word-break:break-all; }
     .calcNums:empty::after { content:""; }
     .pill { display:inline-flex; min-width:26px; height:26px; padding:0 6px; align-items:center; justify-content:center; border-radius:999px; background:rgba(37,99,235,.35); border:1px solid rgba(255,255,255,.18); }
     .zodiacLine { display:grid; grid-template-columns: 90px 1fr; gap:8px; padding:8px 0; border-bottom:1px solid rgba(255,255,255,.08); }
@@ -102,6 +102,11 @@
     .analysisResult strong { color:#93c5fd; }
     .analysisResult ul { margin:6px 0 0 18px; padding:0; }
     .analysisResult li { margin:4px 0; }
+
+    .cityRow { display:grid; grid-template-columns: 1fr auto; gap:8px; align-items:end; }
+    .cityResult { font-size:12px; opacity:.78; margin-top:6px; line-height:1.4; }
+    @media (max-width: 520px){ .cityRow { grid-template-columns: 1fr; } }
+    .autoValue { padding: 10px 0; line-height:1.45; }
   </style>
 </head>
 <body>
@@ -140,6 +145,18 @@
         * 결과는 “일의 수(한 자리)”로, 계산 과정 중 11/22/33이 나오면 <span class="mono">2 (11)</span>처럼 표시<br>
         * 숫자를 클릭하면 수식(계산 과정)이 열리고/닫힙니다.
       </div>
+
+      <h2>3. 태어난 도시 입력</h2>
+      <label for="birthCity">지역찾기</label>
+      <div class="cityRow">
+        <div>
+          <input id="birthCity" list="cityList" placeholder="예) 부산, 서울, 대구" autocomplete="off" />
+          <datalist id="cityList"></datalist>
+          <div class="cityResult" id="cityInfo">도시를 입력하면 달 별자리와 ASC 계산에 사용됩니다.</div>
+        </div>
+        <button id="cityBtn" class="secondary" type="button" style="min-width:110px">지역찾기</button>
+      </div>
+      <div class="hint">* 달/ASC는 앱 내부의 간이 천문 계산식으로 자동 표시됩니다. 전문 점성술 프로그램과는 약간 차이가 날 수 있습니다.</div>
 
       <div class="row">
         <button id="calcBtn">계산하기</button>
@@ -195,7 +212,7 @@
 
       <div class="box" style="margin-top:12px">
         <div class="section-title">수비학 성격분석</div>
-        <div class="desc">생년월일 8자리 숫자 + 인생여정수 1개, 총 9개의 숫자를 1~9 자리에 채워 보여줍니다.</div>
+        <div class="desc">생년월일 8자리 숫자 + 주요 수(1~5번)의 한 자리수를 1~9 자리에 함께 표시합니다.</div>
         <div class="numGridWrap">
           <div class="numGrid">
             <div class="corner"></div><div class="axis"></div><div class="axis"></div><div class="axis"></div><div class="axis">결단력,<br>불굴의 의지<br>(1,5,9)</div>
@@ -210,9 +227,9 @@
 
       <div class="box" style="margin-top:12px">
         <div class="section-title">별자리</div>
-        <div class="zodiacLine"><strong>태양</strong><div id="sunSign">-</div></div>
-        <div class="zodiacLine"><strong>달</strong><input id="moonSign" placeholder="직접 입력" /></div>
-        <div class="zodiacLine"><strong>ASC</strong><input id="ascSign" placeholder="직접 입력" /></div>
+        <div class="zodiacLine"><strong>태양</strong><div class="autoValue" id="sunSign">-</div></div>
+        <div class="zodiacLine"><strong>달</strong><div class="autoValue" id="moonSign">-</div></div>
+        <div class="zodiacLine"><strong>ASC</strong><div class="autoValue" id="ascSign">-</div></div>
       </div>
 
       <div class="box" style="margin-top:12px">
@@ -342,14 +359,17 @@
     `).join("")}</div>`;
   }
 
-  function renderPersonalityGrid(yyyy, MM, dd, lifeObj){
-    const digits = `${yyyy}${MM}${dd}${lifeObj?.value ?? ""}`.replaceAll(/[^1-9]/g, "").split("");
+  function renderPersonalityGrid(yyyy, MM, dd, mainNums){
+    const extra = (mainNums || [])
+      .map(x => x && x.value != null ? String(x.value) : "")
+      .join("");
+    const digits = `${yyyy}${MM}${dd}${extra}`.replaceAll(/[^1-9]/g, "").split("");
     const counts = {};
     for (let n=1; n<=9; n++) {
-      const count = digits.filter(x => x === String(n)).length;
-      counts[n] = count;
+      const values = digits.filter(x => x === String(n));
+      counts[n] = values.length;
       const cell = $("grid"+n);
-      cell.innerHTML = `<span class="baseNum">${CIRCLED[n]}</span><span class="calcNums">${count ? Array(count).fill(String(n)).join(", ") : ""}</span>`;
+      cell.innerHTML = `<span class="baseNum">${CIRCLED[n]}</span><span class="calcNums">${values.join(", ")}</span>`;
     }
     renderMatrixAnalysis(counts);
   }
@@ -421,6 +441,115 @@
   function renderZodiac(MM, dd){
     const sign = getSunSign(MM, dd);
     $("sunSign").textContent = SUN_SIGN_INFO[sign] || "-";
+  }
+
+
+  const CITY_DATA = [
+    {name:"서울", lat:37.5665, lon:126.9780}, {name:"부산", lat:35.1796, lon:129.0756},
+    {name:"대구", lat:35.8714, lon:128.6014}, {name:"인천", lat:37.4563, lon:126.7052},
+    {name:"광주", lat:35.1595, lon:126.8526}, {name:"대전", lat:36.3504, lon:127.3845},
+    {name:"울산", lat:35.5384, lon:129.3114}, {name:"세종", lat:36.4800, lon:127.2890},
+    {name:"수원", lat:37.2636, lon:127.0286}, {name:"성남", lat:37.4200, lon:127.1265},
+    {name:"고양", lat:37.6584, lon:126.8320}, {name:"용인", lat:37.2411, lon:127.1776},
+    {name:"부천", lat:37.5035, lon:126.7660}, {name:"안산", lat:37.3219, lon:126.8309},
+    {name:"안양", lat:37.3943, lon:126.9568}, {name:"남양주", lat:37.6360, lon:127.2165},
+    {name:"화성", lat:37.1995, lon:126.8312}, {name:"평택", lat:36.9921, lon:127.1129},
+    {name:"군산", lat:35.9677, lon:126.7366}, {name:"전주", lat:35.8242, lon:127.1480},
+    {name:"익산", lat:35.9483, lon:126.9576}, {name:"목포", lat:34.8118, lon:126.3922},
+    {name:"여수", lat:34.7604, lon:127.6622}, {name:"순천", lat:34.9506, lon:127.4872},
+    {name:"포항", lat:36.0190, lon:129.3435}, {name:"경주", lat:35.8562, lon:129.2247},
+    {name:"구미", lat:36.1195, lon:128.3446}, {name:"창원", lat:35.2279, lon:128.6811},
+    {name:"김해", lat:35.2285, lon:128.8894}, {name:"진주", lat:35.1800, lon:128.1076},
+    {name:"제주", lat:33.4996, lon:126.5312}, {name:"춘천", lat:37.8813, lon:127.7298},
+    {name:"원주", lat:37.3422, lon:127.9202}, {name:"강릉", lat:37.7519, lon:128.8761},
+    {name:"청주", lat:36.6424, lon:127.4890}, {name:"충주", lat:36.9910, lon:127.9259},
+    {name:"천안", lat:36.8151, lon:127.1139}, {name:"아산", lat:36.7898, lon:127.0018}
+  ];
+
+  function initCityList(){
+    const dl = $("cityList");
+    if (!dl) return;
+    dl.innerHTML = CITY_DATA.map(c => `<option value="${escapeHtml(c.name)}"></option>`).join("");
+  }
+
+  function findCity(){
+    const raw = ($("birthCity")?.value || "").trim();
+    if (!raw) return null;
+    const compact = raw.replace(/\s+/g, "");
+    let found = CITY_DATA.find(c => c.name === compact) || CITY_DATA.find(c => compact.includes(c.name) || c.name.includes(compact));
+    if (found) return found;
+    const nums = raw.split(/[ ,/]+/).map(Number).filter(n => Number.isFinite(n));
+    if (nums.length >= 2) return { name:"직접입력", lat:nums[0], lon:nums[1] };
+    return null;
+  }
+
+  function updateCityInfo(){
+    const city = findCity();
+    const el = $("cityInfo");
+    if (!el) return city;
+    if (city) el.textContent = `${city.name} · 위도 ${city.lat.toFixed(4)}, 경도 ${city.lon.toFixed(4)} 기준`;
+    else el.textContent = "도시를 찾지 못했어요. 예: 부산, 서울 또는 35.1796,129.0756 형식으로 입력해 주세요.";
+    return city;
+  }
+
+  function mod360(x){ return ((x % 360) + 360) % 360; }
+  function deg2rad(d){ return d * Math.PI / 180; }
+  function rad2deg(r){ return r * 180 / Math.PI; }
+
+  function julianDayUTC(y,m,d,h,min){
+    // 입력 시간은 한국 표준시로 보고 UTC로 변환
+    let yy=Number(y), mo=Number(m), day=Number(d);
+    let hour=Number(h) + Number(min)/60 - 9;
+    if (mo <= 2) { yy -= 1; mo += 12; }
+    const A = Math.floor(yy/100);
+    const B = 2 - A + Math.floor(A/4);
+    return Math.floor(365.25*(yy+4716)) + Math.floor(30.6001*(mo+1)) + day + B - 1524.5 + hour/24;
+  }
+
+  function zodiacFromLongitude(lon){
+    const names = ["양자리","황소자리","쌍둥이자리","게자리","사자자리","처녀자리","천칭자리","전갈자리","사수자리","염소자리","물병자리","물고기자리"];
+    return names[Math.floor(mod360(lon)/30)];
+  }
+
+  function moonLongitudeApprox(jd){
+    const D = jd - 2451545.0;
+    const L = mod360(218.316 + 13.176396 * D);
+    const M_moon = mod360(134.963 + 13.064993 * D);
+    const M_sun = mod360(357.529 + 0.98560028 * D);
+    const elong = mod360(297.850 + 12.190749 * D);
+    return mod360(
+      L + 6.289 * Math.sin(deg2rad(M_moon))
+        + 1.274 * Math.sin(deg2rad(2*elong - M_moon))
+        + 0.658 * Math.sin(deg2rad(2*elong))
+        + 0.214 * Math.sin(deg2rad(2*M_moon))
+        - 0.186 * Math.sin(deg2rad(M_sun))
+    );
+  }
+
+  function ascendantApprox(jd, lat, lon){
+    const T = (jd - 2451545.0) / 36525;
+    const theta = mod360(280.46061837 + 360.98564736629*(jd-2451545.0) + 0.000387933*T*T - T*T*T/38710000 + lon);
+    const eps = deg2rad(23.439291 - 0.0130042*T);
+    const phi = deg2rad(lat);
+    const th = deg2rad(theta);
+    const asc = rad2deg(Math.atan2(-Math.cos(th), Math.sin(th)*Math.cos(eps) + Math.tan(phi)*Math.sin(eps)));
+    return mod360(asc + 180);
+  }
+
+  function renderZodiacAuto(y, MM, dd, hh, min){
+    const sign = getSunSign(MM, dd);
+    $("sunSign").textContent = SUN_SIGN_INFO[sign] || "-";
+    const city = updateCityInfo();
+    if (!city) {
+      $("moonSign").textContent = "태어난 도시를 입력해 주세요.";
+      $("ascSign").textContent = "태어난 도시를 입력해 주세요.";
+      return;
+    }
+    const jd = julianDayUTC(y, MM, dd, hh, min);
+    const moonSign = zodiacFromLongitude(moonLongitudeApprox(jd));
+    const ascSign = zodiacFromLongitude(ascendantApprox(jd, city.lat, city.lon));
+    $("moonSign").textContent = `${SUN_SIGN_INFO[moonSign] || moonSign} (간이계산)`;
+    $("ascSign").textContent = `${SUN_SIGN_INFO[ascSign] || ascSign} (간이계산)`;
   }
 
   // ---------- 1) 인생여정수 ----------
@@ -643,14 +772,14 @@
     const err = validateYMDHM(y,m,d,hh,mm);
     if (err) return { ok:false, err };
 
-    return { ok:true, input: { lastName, firstName, fullName, y, m, d, hh, mm } };
+    return { ok:true, input: { lastName, firstName, fullName, y, m, d, hh, mm, birthCity: ($("birthCity")?.value || "").trim() } };
   }
 
   function buildRecord(){
     const t = getInputData();
     if (!t.ok) return { ok:false, err:t.err };
 
-    const { fullName, y, m, d, hh, mm, lastName, firstName } = t.input;
+    const { fullName, y, m, d, hh, mm, lastName, firstName, birthCity } = t.input;
 
     const life = calcLifeJourney(y,m,d);
     const cons = calcConsonantNumber(fullName);
@@ -668,7 +797,7 @@
         id,
         savedAt: Date.now(),
         savedAtText: nowStamp(),
-        input: { lastName, firstName, fullName, y, m, d, hh, mm, moonSign: ($("moonSign")?.value || "").trim(), ascSign: ($("ascSign")?.value || "").trim() },
+        input: { lastName, firstName, fullName, y, m, d, hh, mm, birthCity, moonSign: ($("moonSign")?.textContent || "").trim(), ascSign: ($("ascSign")?.textContent || "").trim() },
         result: { life, cons, soul, destiny, complete, yearNum }
       }
     };
@@ -743,8 +872,7 @@
         $("dd").value = item.input.d || "";
         $("hh").value = item.input.hh || "";
         $("min").value = item.input.mm || "";
-        if ($("moonSign")) $("moonSign").value = item.input.moonSign || "";
-        if ($("ascSign")) $("ascSign").value = item.input.ascSign || "";
+        if ($("birthCity")) $("birthCity").value = item.input.birthCity || "";
 
         $("calcBtn").click();
         window.scrollTo({ top: 0, behavior: "smooth" });
@@ -779,6 +907,10 @@
     $(id).addEventListener("blur", ()=> normalizeDateInputs());
   });
 
+  initCityList();
+  if ($("cityBtn")) $("cityBtn").addEventListener("click", updateCityInfo);
+  if ($("birthCity")) $("birthCity").addEventListener("change", updateCityInfo);
+
   $("calcBtn").addEventListener("click", ()=>{
     const lastName = ($("lastName").value || "").trim();
     const firstName = ($("firstName").value || "").trim();
@@ -790,8 +922,7 @@
 
     const life = calcLifeJourney(y,m,d);
     setBox("lifeNum","lifeDetail","box-life", life);
-    renderPersonalityGrid(y, m, d, life);
-    renderZodiac(m, d);
+    renderZodiacAuto(y, m, d, hh, mm);
 
     const cons = calcConsonantNumber(fullName);
     setBox("personalityNum","personalityDetail","box-personality", cons);
@@ -804,6 +935,8 @@
 
     const complete = calcFromTwo("완성수", life.value, destiny.value);
     setBox("completeNum","completeDetail","box-complete", complete);
+
+    renderPersonalityGrid(y, m, d, [life, cons, soul, destiny, complete]);
 
     const nowYear = new Date().getFullYear();
     const yearNum = calcThisYearNumber(m, d, nowYear);
@@ -830,8 +963,9 @@
     $("dd").value = "";
     $("hh").value = "";
     $("min").value = "";
-    if ($("moonSign")) $("moonSign").value = "";
-    if ($("ascSign")) $("ascSign").value = "";
+    if ($("birthCity")) $("birthCity").value = "";
+    if ($("moonSign")) $("moonSign").textContent = "-";
+    if ($("ascSign")) $("ascSign").textContent = "-";
 
     ["box-life","box-personality","box-soul","box-destiny","box-complete","box-year"].forEach(id=>$(id).classList.remove("open"));
     ["lifeNum","personalityNum","soulNum","destinyNum","completeNum","yearNum"].forEach(id=>$(id).textContent="-");
@@ -839,8 +973,9 @@
     for (let n=1; n<=9; n++) $("grid"+n).innerHTML = `<span class="baseNum">${CIRCLED[n]}</span><span class="calcNums"></span>`;
     if ($("matrixAnalysis")) $("matrixAnalysis").textContent = "계산하면 숫자 과다/결핍 해석이 여기에 표시됩니다.";
     $("sunSign").textContent = "-";
-    if ($("moonSign")) $("moonSign").value = "";
-    if ($("ascSign")) $("ascSign").value = "";
+    if ($("birthCity")) $("birthCity").value = "";
+    if ($("moonSign")) $("moonSign").textContent = "-";
+    if ($("ascSign")) $("ascSign").textContent = "-";
 
     $("lastName").focus();
   });
